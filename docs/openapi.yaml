@@ -289,10 +289,6 @@ components:
         birthdate:
           type: string
           format: date
-        movies:
-          type: array
-          items:
-            $ref: '#/components/schemas/Movie'
 
     RegistrationResponse:
       type: object
