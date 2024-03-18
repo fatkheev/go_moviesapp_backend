@@ -1,0 +1,42 @@
+version: '3.8'
+services:
+  db:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - "${DB_PORT}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  swagger-ui:
+    image: swaggerapi/swagger-ui
+    container_name: swagger_ui
+    ports:
+      - "8080:8080"
+    environment:
+      SWAGGER_JSON: /docs/openapi.yaml
+      BASE_URL: /swagger
+    volumes:
+      - ./docs/openapi.yaml:/docs/openapi.yaml
+    depends_on:
+      - db
+      - app
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8081:8081"
+    depends_on:
+      - db
+    env_file: 
+      - .env
+    volumes:
+      - ./.env:/.env
+
+volumes:
+  pgdata:

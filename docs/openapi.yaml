@@ -1,0 +1,316 @@
+openapi: 3.0.0
+info:
+  title: Endpoints API VK_Filmoteca
+  description: Данные API дбыли написаны методом code-first.
+  version: "1.0"
+servers:
+  - url: http://localhost:8081
+paths:
+  /register:
+    post:
+      summary: Регистрация нового пользователя
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [username, password, role_id]
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+                role_id:
+                  type: integer
+                  description: "User role ID (1 for Admin, 2 for User)"
+                  enum: [1, 2]
+      responses:
+        "201":
+          description: Успешная регистрация пользователя.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "user created"
+  /login:
+    post:
+      summary: Авторизация пользователя
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+      responses:
+        "200":
+          description: Успешная авторизация пользователя возвращает JWT-токен.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+  /movies:
+    post:
+      summary: Добавить фильм
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Movie"
+      responses:
+        "201":
+          description: Фильм добавлен успешно.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    example: 22
+                  title:
+                    type: string
+                    example: "Inception"
+                  description:
+                    type: string
+                    example: "A thief who steals corporate secrets through the use..."
+                  release_date:
+                    type: string
+                    format: date
+                    example: "2024-03-18"
+                  rating:
+                    type: number
+                    format: float
+                    example: 2
+                  actor_ids:
+                    type: array
+                    items:
+                      type: integer
+                    example: [5]
+
+    get:
+      summary: Получить список фильмов с сортировкой
+      parameters:
+        - name: sort
+          in: query
+          description: Сортировка фильмов.
+          required: false
+          schema:
+            type: string
+            enum: [title, release_date, rating]
+        - name: title
+          in: query
+          description: Поиск по названию фильма.
+          required: false
+          schema:
+            type: string
+        - name: actor
+          in: query
+          description: Поиск по имени актера.
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Список фильмов
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Movie"
+
+  /movies/{movieId}:
+    put:
+      summary: Обновить фильм по ID
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: movieId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Movie"
+      responses:
+        "200":
+          description: Фильм обновлен успешно.
+    delete:
+      summary: Удалить фильм
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: movieId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Фильм удален успешно.
+
+  /actors:
+    post:
+      summary: Добавить актера
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Actor'
+      responses:
+        "201":
+          description: Актер добавлен успешно.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Actor'
+    get:
+      summary: Получить список актеров
+      parameters:
+        - name: withMovies
+          in: query
+          description: Включить актера в списке фильмов
+          required: false
+          schema:
+            type: boolean
+      responses:
+        "200":
+          description: Список актеров
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Actor'
+  /actors/{actorId}:
+    put:
+      summary: Обновить актера по ID
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: actorId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Actor'
+      responses:
+        "200":
+          description: Актер обновлен успешно.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Actor'
+    delete:
+      summary: Удалить актера по ID
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: actorId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Актер удален успешно.
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      
+  schemas:
+    User:
+      type: object
+      required:
+        - username
+        - password
+        - role_id
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+        role_id:
+          type: integer
+
+    Movie:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        release_date:
+          type: string
+          format: date
+        rating:
+          type: number
+          format: float
+        actor_ids:
+          type: array
+          items:
+            type: integer
+
+    Actor:
+      type: object
+      properties:
+        name:
+          type: string
+        gender:
+          type: string
+        birthdate:
+          type: string
+          format: date
+        movies:
+          type: array
+          items:
+            $ref: '#/components/schemas/Movie'
+
+    RegistrationResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: user created
+
+    LoginResponse:
+      type: object
+      properties:
+        user:
+          type: string
+          example: test
+        token:
+          type: string
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InRlc3QiLCJyb2xlX2lkIjoxLCJleHAiOjE3MTA3NDQ2NDR9.c-1xlvC56wzko6w5qO4s-t7DQnLuEfNFpTpM9jMnNm8"
+        expires_at:
+          type: string
+          example: "2024-03-18T09:50:44.551422+03:00"
+          format: date-time

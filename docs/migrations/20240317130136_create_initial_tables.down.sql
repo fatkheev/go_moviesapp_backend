@@ -1,0 +1,13 @@
+DROP TABLE IF EXISTS users;
+DROP SEQUENCE IF EXISTS users_user_id_seq;
+
+DROP TABLE IF EXISTS movies_actors;
+
+DROP TABLE IF EXISTS movies;
+DROP SEQUENCE IF EXISTS movies_movie_id_seq;
+
+DROP TABLE IF EXISTS actors;
+DROP SEQUENCE IF EXISTS actors_actor_id_seq;
+
+DROP TABLE IF EXISTS roles;
+DROP SEQUENCE IF EXISTS roles_role_id_seq;
