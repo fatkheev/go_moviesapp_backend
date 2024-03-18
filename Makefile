@@ -50,7 +50,7 @@ remove-images: stop-all remove-containers
 migrate-up:
 	@echo "Применение миграций..."
 	@eval $$(cat .env | sed 's/^/export /') && \
-	migrate -path docs/migrations -database "postgresql://$$DB_USER:$$DB_PASSWORD@localhost:$$DB_PORT/$$DB_NAME?sslmode=disable" up
+	migrate -path docs/migrations -database "postgresql://filmoteca:filmoteca@db:5432/filmoteca?sslmode=disable" up
 
 # Откат миграций
 migrate-down:
