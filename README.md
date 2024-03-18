@@ -4,6 +4,7 @@
 ```bash
 # Сборка и запуск
 cd ...
+brew install migrate
 export PATH=/Applications/Docker.app/Contents/Resources/bin:$PATH
 
 # API Endpoint : <null>
